@@ -3,13 +3,6 @@
 	"version": "1.0.0",
 	"description": "Extracts information about movies and TV shows",
 	"author": "Niv Ezra",
-	"private": true,
-	"workspaces": {
-		"packages": [
-			"packages/*",
-			"apps/*"
-		]
-	},
 	"devDependencies": {
 		"husky": "^8.0.3",
 		"prettier": "^2.8.0",
@@ -18,5 +11,8 @@
 	"scripts": {
 		"prepare": "husky install",
 		"format": "npx prettier . --write"
+	},
+	"dependencies": {
+		"jsdom": "^23.0.1"
 	}
 }
