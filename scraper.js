@@ -37,3 +37,5 @@ const getImdbTitle = async titleId => {
 	const titleElement = document.querySelector('script#__NEXT_DATA__').textContent;
 	return JSON.parse(titleElement)?.props?.pageProps;
 };
+
+module.exports = { getImdbSearchResults, getImdbTitle };
