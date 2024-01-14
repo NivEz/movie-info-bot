@@ -2,6 +2,8 @@ const Telenode = require('telenode-js');
 const { getImdbSearchResults, getImdbTitle } = require('./scraper');
 const { joinIfExist, getNResults } = require('./utils');
 
+const pageSize = 5;
+
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
@@ -13,8 +15,8 @@ const bot = new Telenode({
 bot.createServer();
 
 bot.onTextMessage('', async messageBody => {
-	const title = messageBody.text;
-	const searchResults = await getImdbSearchResults(title);
+	const searchTerm = messageBody.text;
+	const searchResults = await getImdbSearchResults(searchTerm);
 	const chatId = messageBody.chat.id;
 	if (!searchResults) {
 		await bot.sendTextMessage(chatId, 'No results found');
@@ -27,31 +29,41 @@ bot.onTextMessage('', async messageBody => {
 			await bot.sendTextMessage('There is no information about this title', chatId);
 		}
 	} else {
-		// handle multiple results (paging)
-		const pagedTitles = getNResults(searchResults, 0, 5);
-		const inlineKeyboard = pagedTitles.map(title => {
+		// handle multiple results (pagination)
+		const paginatedTitles = getNResults(searchResults, 0, pageSize);
+		const inlineKeyboard = paginatedTitles.map(title => {
 			const titleTextInfo = [
 				title.titleNameText,
 				title.titleReleaseText,
 				title.titleTypeText,
 				title.topCredits.join(', '),
-			].filter(Boolean);
+			];
 			return [
 				{
-					text: titleTextInfo.join(' • '),
+					text: joinIfExist(titleTextInfo, ' • '),
 					callback_data: title.id,
 				},
 			];
 		});
+		// if there are more than 5 results, add a button to go to the next page
+		if (searchResults.length > 5) {
+			inlineKeyboard.push([
+				{
+					text: 'Next page',
+					callback_data: `searchTerm=${searchTerm}__startIdx=5`,
+				},
+			]);
+		}
 		await bot.sendInlineKeyboard(chatId, 'Choose a movie or a TV show', inlineKeyboard);
 	}
 });
 
 // handling search results
 bot.onButton('', async callbackQuery => {
-	if (callbackQuery.data.startsWith('tt')) {
-		const titleId = callbackQuery.data;
-		const message = await buildMessageFromTitle(titleId);
+	const data = callbackQuery.data;
+	if (data.startsWith('tt')) {
+		// In that case data is the title ID
+		const message = await buildMessageFromTitle(data);
 		if (!message) {
 			await bot.sendTextMessage(
 				'There is no information about this title',
@@ -60,6 +72,55 @@ bot.onButton('', async callbackQuery => {
 			return;
 		}
 		await bot.sendTextMessage(message, callbackQuery.message.chat.id);
+		return;
+	}
+	if (data.startsWith('searchTerm=')) {
+		// In that case data is the search term and the start index (pagination)
+		const splittedData = data.split('__');
+		const searchTerm = splittedData[0].split('=')[1];
+		let startIdx = Number(splittedData[1].split('=')[1]);
+		const searchResults = await getImdbSearchResults(searchTerm);
+		const isFirstPage = startIdx <= 0; // should be === but <= just for edge cases
+		const isLastPage = searchResults.length - pageSize <= startIdx;
+		if (isFirstPage) {
+			startIdx = 0;
+		}
+		const paginatedTitles = getNResults(searchResults, startIdx, pageSize);
+		const inlineKeyboard = paginatedTitles.map(title => {
+			const titleTextInfo = [
+				title.titleNameText,
+				title.titleReleaseText,
+				title.titleTypeText,
+				title.topCredits.join(', '),
+			];
+			return [
+				{
+					text: joinIfExist(titleTextInfo, ' • '),
+					callback_data: title.id,
+				},
+			];
+		});
+
+		const paginationButtons = [];
+		if (!isFirstPage) {
+			paginationButtons.push({
+				text: '⬅️ Previous page',
+				callback_data: `searchTerm=${searchTerm}__startIdx=${startIdx - pageSize}`,
+			});
+		}
+		if (!isLastPage) {
+			paginationButtons.push({
+				text: 'Next page ➡️',
+				callback_data: `searchTerm=${searchTerm}__startIdx=${startIdx + pageSize}`,
+			});
+		}
+		inlineKeyboard.push(paginationButtons);
+		await bot.editInlineKeyboard(
+			callbackQuery.message.chat.id,
+			callbackQuery.message.message_id,
+			null,
+			inlineKeyboard,
+		);
 	}
 });
 
