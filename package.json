@@ -4,8 +4,8 @@
 	"description": "Telegram bot that extracts information about movies and TV shows",
 	"author": "Niv Ezra",
 	"scripts": {
-		"dev": "nodemon bot.js",
-		"start": "node bot.js",
+		"dev": "nodemon src/index.js",
+		"start": "node src/index.js",
 		"prepare": "husky install",
 		"format": "npx prettier . --write"
 	},

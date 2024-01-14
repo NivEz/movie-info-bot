@@ -28,14 +28,17 @@ const getImdbSearchResults = async (searchTerm, exact) => {
 	url.search = new URLSearchParams(params).toString();
 	const document = await getHtmlDocument(url.href);
 	const searchResultsElement = document.querySelector('script#__NEXT_DATA__').textContent;
-	return JSON.parse(searchResultsElement)?.props?.pageProps.titleResults.results;
+
+	const searchResults = JSON.parse(searchResultsElement)?.props?.pageProps.titleResults.results;
+	return searchResults;
 };
 
 const getImdbTitle = async titleId => {
 	const reqUrl = `https://www.imdb.com/title/${titleId}`;
 	const document = await getHtmlDocument(reqUrl);
 	const titleElement = document.querySelector('script#__NEXT_DATA__').textContent;
-	return JSON.parse(titleElement)?.props?.pageProps;
+	const title = JSON.parse(titleElement)?.props?.pageProps;
+	return title;
 };
 
 module.exports = { getImdbSearchResults, getImdbTitle };
