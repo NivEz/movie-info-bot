@@ -1,4 +1,4 @@
-const { joinIfExist, getNResults } = require('../utils');
+const { joinIfExist, getNResults, runCallbackSafely } = require('../utils');
 
 const pageSize = 5;
 
@@ -8,45 +8,50 @@ const buildMessageFromTitle = title => {
 		console.warn('No title data');
 		return;
 	}
-	const titleName = titleData.titleText.text;
-	const titleType = titleData.titleType.text;
+	const titleName = titleData.titleText?.text;
+	const titleType = titleData.titleType?.text;
 	const yearRange = titleData.releaseYear;
-	let yearText = yearRange.year;
-	if (titleType === 'TV Series') {
+	let yearText = yearRange?.year;
+	if (yearText && titleType === 'TV Series') {
 		yearText += `-${yearRange.endYear || ''}`;
 	}
-	const duration = titleData.runtime.displayableProperty.value.plainText;
-	const genres = titleData.genres.genres.map(g => g.text);
+	const duration = titleData.runtime?.displayableProperty?.value?.plainText;
+	const genres = titleData.genres?.genres?.map(g => g.text);
 
-	const plot = `\n${titleData.plot.plotText.plainText}`;
-	let stars = titleData.principalCredits.filter(c => c.category.text === 'Stars');
-	stars = stars[0]?.credits.map(c => c.name.nameText.text);
-	stars = joinIfExist(stars, ', ') + '.\n';
+	const plot = runCallbackSafely(() => `\n${titleData.plot.plotText.plainText}`);
+	let stars = runCallbackSafely(() => {
+		let starsArr = titleData.principalCredits.find(c => c.category.text === 'Stars');
+		starsArr = starsArr[0].credits.map(c => c.name.nameText.text);
+		return joinIfExist(stars, ', ') + '.\n';
+	});
 
-	const rating = '⭐️ ' + titleData.ratingsSummary.aggregateRating;
-	const voteCount = titleData.ratingsSummary.voteCount.toLocaleString();
+	const rating = runCallbackSafely(() => '⭐️ ' + titleData.ratingsSummary.aggregateRating);
+	const voteCount = titleData.ratingsSummary?.voteCount?.toLocaleString();
 	const ranking = titleData.meterRanking;
-	const currentRank = ranking.currentRank;
-	const rankDif = ranking.rankChange.difference;
-	let rankingText = ranking.currentRank;
-	switch (ranking.rankChange.changeDirection) {
-		case 'UP':
-			rankingText = `🟢 ${currentRank} ↗️ ${rankDif}`;
-			break;
-		case 'DOWN':
-			rankingText = `🔴 ${currentRank} ↘️ ${rankDif}`;
-			break;
-		case 'FLAT':
-			rankingText = `⚪️ ${currentRank}`;
-			break;
+	let rankingText;
+	if (ranking) {
+		const currentRank = ranking.currentRank;
+		const rankDif = ranking.rankChange.difference;
+		switch (ranking.rankChange.changeDirection) {
+			case 'UP':
+				rankingText = `🟢 ${currentRank} ↗️ ${rankDif}`;
+				break;
+			case 'DOWN':
+				rankingText = `🔴 ${currentRank} ↘️ ${rankDif}`;
+				break;
+			case 'FLAT':
+				rankingText = `⚪️ ${currentRank}`;
+				break;
+		}
 	}
 	const imdbUrl = `https://www.imdb.com/title/${titleData.id}`;
 	const messageLines = [
 		titleName,
 		joinIfExist([titleType, yearText, duration], ' • '),
-		genres.join(', '),
+		joinIfExist(genres, ', '),
 		plot,
 		stars,
+		' ', // empty line (creates new line after joinIfExist)
 		joinIfExist([rating, voteCount, rankingText], ' • '),
 		imdbUrl,
 	];
@@ -60,7 +65,7 @@ const buildInlineKeyboardFromResults = paginatedTitles => {
 			title.titleNameText,
 			title.titleReleaseText,
 			title.titleTypeText,
-			title.topCredits.join(', '),
+			joinIfExist(title.topCredits, ', '),
 		];
 		return [
 			{
