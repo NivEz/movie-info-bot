@@ -1,0 +1,15 @@
+appName: movie-info-bot
+
+deployment:
+  image: ''
+
+ingress:
+  host: ''
+
+appEnv:
+  apiToken: ''
+
+imageCredentials:
+  registry: ''
+  username: ''
+  password: ''
