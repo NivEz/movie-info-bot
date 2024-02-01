@@ -9,7 +9,7 @@ helm install -f .helm/values-local.yaml movie-info-bot ./.helm --atomic --debug 
 
 ### Upgrade the chart
 ```
-helm upgrade -f .helm/values-local.yaml movie-info-bot ./.helm --atomic --debug --reuse-values
+helm upgrade -f .helm/values-local.yaml movie-info-bot ./.helm --atomic --debug --reuse-values --namespace movie-info-bot
 ```
 
 ### Uninstall

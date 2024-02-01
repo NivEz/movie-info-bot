@@ -1,0 +1,16 @@
+appName: movie-info-bot
+
+deployment:
+  image: '${DOCKER_REPO}:${SHA}'
+  sha: '${SHA}'
+
+ingress:
+  host: '${HOST}'
+
+appEnv:
+  apiToken: '${TELEGRAM_API_TOKEN}'
+
+imageCredentials:
+  registry: '${DOCKER_REGISTRY}'
+  username: '${DOCKER_USERNAME}'
+  password: '${DOCKER_AUTH_TOKEN}'
