@@ -12,12 +12,20 @@ const bot = new Telenode({
 
 bot.createServer();
 
+bot.onTextMessage('/start', async messageBody => {
+	const chatId = messageBody.chat.id;
+	await bot.sendTextMessage(
+		'Welcome to the IMDB bot. Send me the title of a movie or a TV show and I will provide you with some information and rating about it.',
+		chatId,
+	);
+});
+
 bot.onTextMessage('', async messageBody => {
 	const searchTerm = messageBody.text;
 	const searchResults = await getImdbSearchResults(searchTerm);
 	const chatId = messageBody.chat.id;
-	if (!searchResults) {
-		await bot.sendTextMessage(chatId, 'No results found');
+	if (!searchResults.length) {
+		await bot.sendTextMessage('No results found', chatId);
 		return;
 	}
 	if (searchResults.length === 1) {
