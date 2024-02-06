@@ -27,5 +27,10 @@ spec:
                 secretKeyRef:
                   name: app-env-vars
                   key: API_TOKEN
+            - name: SECRET_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: app-env-vars
+                  key: SECRET_TOKEN
       imagePullSecrets:
         - name: registry-credentials

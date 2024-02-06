@@ -9,6 +9,7 @@ ingress:
 
 appEnv:
   apiToken: '${TELEGRAM_API_TOKEN}'
+  secretToken: '${TELEGRAM_SECRET_TOKEN}'
 
 imageCredentials:
   registry: '${DOCKER_REGISTRY}'

@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const bot = new Telenode({
 	apiToken: process.env.API_TOKEN,
+	secretToken: process.env.SECRET_TOKEN,
 });
 
 bot.createServer();
