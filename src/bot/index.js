@@ -1,6 +1,6 @@
 const Telenode = require('telenode-js');
 const wrapper = require('./wrapper');
-const { onStart, onSearch, onClickSearchResult } = require('./handlers');
+const { onStart, onSearch, onClickSearchResultsMenu } = require('./handlers');
 
 if (process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
@@ -17,4 +17,4 @@ bot.onTextMessage('/start', messageBody => wrapper(bot, messageBody, onStart));
 
 bot.onTextMessage('', messageBody => wrapper(bot, messageBody, onSearch));
 
-bot.onButton('', callbackQuery => wrapper(bot, callbackQuery, onClickSearchResult));
+bot.onButton('', callbackQuery => wrapper(bot, callbackQuery, onClickSearchResultsMenu));
