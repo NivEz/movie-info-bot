@@ -1,4 +1,5 @@
-const { getImdbSearchResults, getImdbTitle } = require('../scraper');
+const { getImdbTitle } = require('../scraper');
+const { getSearchResults } = require('../data-access/dal');
 const { buildMessageFromTitle, buildPaginatedInlineKeyboard } = require('./messageBuilder');
 
 const onStart = async (bot, messageBody) => {
@@ -14,7 +15,7 @@ const onStart = async (bot, messageBody) => {
 const onSearch = async (bot, messageBody) => {
 	const searchTerm = messageBody.text;
 	console.log(`Searching for: ${searchTerm}. Sender: [ ${messageBody.from.first_name} ].`);
-	const searchResults = await getImdbSearchResults(searchTerm);
+	const searchResults = await getSearchResults(searchTerm);
 	const chatId = messageBody.chat.id;
 	if (!searchResults.length) {
 		console.log(`No results found for: ${searchTerm}`);
@@ -66,7 +67,7 @@ const onClickSearchResultsMenu = async (bot, callbackQuery) => {
 		const splittedData = data.split('__');
 		const searchTerm = splittedData[0].split('=')[1];
 		let startIdx = Number(splittedData[1].split('=')[1]);
-		const searchResults = await getImdbSearchResults(searchTerm);
+		const searchResults = await getSearchResults(searchTerm);
 		const inlineKeyboard = buildPaginatedInlineKeyboard(searchResults, searchTerm, startIdx);
 		await bot.editInlineKeyboard(
 			callbackQuery.message.chat.id,
