@@ -83,3 +83,18 @@ jobs:
 
       - name: Helm upgrade
         run: helm upgrade -f .helm/values.yaml movie-info-bot ./.helm --atomic --reuse-values --namespace movie-info-bot
+
+      - name: Success message
+        uses: NivEz/interactive-inputs-action@v1
+        with:
+          telegram-api-token: ${{ secrets.TELEGRAM_API_TOKEN }}
+          telegram-chat-id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          simple-message: 'Successfully deployed a new version of movie-info-bot ✅'
+
+      - name: Failure message
+        if: failure()
+        uses: NivEz/interactive-inputs-action@v1
+        with:
+          telegram-api-token: ${{ secrets.TELEGRAM_API_TOKEN }}
+          telegram-chat-id: ${{ secrets.TELEGRAM_CHAT_ID }}
+          simple-message: 'Deployment failed ❌'

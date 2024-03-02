@@ -25,9 +25,10 @@ const onSearch = async (bot, messageBody) => {
 	if (searchResults.length === 1) {
 		// handle single result
 		console.log(`Found a single result for: ${searchTerm}`);
-		const title = await getImdbTitle(searchResults[0].id);
-		const message = buildMessageFromTitle(title);
-		if (!message) {
+		const titleTxt = await getTitle(searchResults[0].id);
+		if (titleTxt) {
+			await bot.sendTextMessage(titleTxt, chatId);
+		} else {
 			console.log(`No information found for: ${searchTerm}`);
 			await bot.sendTextMessage('There is no information about this title', chatId);
 		}
