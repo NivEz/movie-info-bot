@@ -1,5 +1,5 @@
 const { getImdbTitle } = require('../scraper');
-const { getSearchResults } = require('../data-access/dal');
+const { getSearchResults, getTitle } = require('../data-access/dal');
 const { buildMessageFromTitle, buildPaginatedInlineKeyboard } = require('./messageBuilder');
 
 const onStart = async (bot, messageBody) => {
@@ -46,9 +46,8 @@ const onClickSearchResultsMenu = async (bot, callbackQuery) => {
 		console.log(
 			`Clicked on a search result. Title ID: ${data}. Sender: [ ${callbackQuery.from.first_name} ].`,
 		);
-		const title = await getImdbTitle(data);
-		const message = buildMessageFromTitle(title);
-		if (!message) {
+		const titleTxt = await getTitle(data);
+		if (!titleTxt) {
 			console.log(`No information found for: ${data}`);
 			await bot.sendTextMessage(
 				'There is no information about this title',
@@ -56,7 +55,7 @@ const onClickSearchResultsMenu = async (bot, callbackQuery) => {
 			);
 			return;
 		}
-		await bot.sendTextMessage(message, callbackQuery.message.chat.id);
+		await bot.sendTextMessage(titleTxt, callbackQuery.message.chat.id);
 		return;
 	}
 	if (data.startsWith('searchTerm=')) {

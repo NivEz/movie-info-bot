@@ -1,9 +1,10 @@
-const keyv = require('./cache');
-const { getImdbSearchResults } = require('../scraper');
+const { searchResultsKeyv, titlesKeyv } = require('./cache');
+const { getImdbSearchResults, getImdbTitle } = require('../scraper');
+const { buildMessageFromTitle } = require('../bot/messageBuilder');
 
 const getSearchResults = async searchTerm => {
 	const lowerSearchTerm = searchTerm.toLowerCase();
-	let searchResults = await keyv.get(lowerSearchTerm);
+	let searchResults = await searchResultsKeyv.get(lowerSearchTerm);
 	if (searchResults) {
 		console.log(`Cache found for: ${searchTerm}`);
 	} else {
@@ -13,9 +14,23 @@ const getSearchResults = async searchTerm => {
 			delete sr.imageType;
 			return sr;
 		});
-		keyv.set(lowerSearchTerm, searchResults);
+		searchResultsKeyv.set(lowerSearchTerm, searchResults);
 	}
 	return searchResults;
 };
 
-module.exports = { getSearchResults };
+const getTitle = async titleId => {
+	let titleTxt = await titlesKeyv.get(titleId);
+	if (titleTxt) {
+		console.log(`Cache found for: ${titleId}`);
+	} else {
+		const title = await getImdbTitle(titleId);
+		titleTxt = buildMessageFromTitle(title);
+		if (titleTxt) {
+			titlesKeyv.set(titleId, titleTxt);
+		}
+	}
+	return titleTxt;
+};
+
+module.exports = { getSearchResults, getTitle };

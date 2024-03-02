@@ -3,8 +3,14 @@ const Keyv = require('keyv');
 const oneDay = 1000 * 60 * 60 * 24;
 
 console.log('[] Launching keyv cache engine...');
-const keyv = new Keyv({
+const searchResultsKeyv = new Keyv({
+	namespace: 'searchResults',
 	ttl: oneDay,
 });
 
-module.exports = keyv;
+const titlesKeyv = new Keyv({
+	namespace: 'titles',
+	ttl: oneDay,
+});
+
+module.exports = { searchResultsKeyv, titlesKeyv };
