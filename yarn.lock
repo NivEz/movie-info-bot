@@ -1084,10 +1084,10 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-telenode-js@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/telenode-js/-/telenode-js-1.4.1.tgz#bb25be078457df520b4a8d69abcef1945968952e"
-  integrity sha512-2i+6PU+AT8sh5PZSIRgqjy6N4Gg+hc0gJJW1FhvSN8WCfhZiXjCm4mrZWgNkuwInt+08VMZS+0HwS70cb5lzlw==
+telenode-js@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/telenode-js/-/telenode-js-1.5.0.tgz#450527b3978ef507f4eeb4bc2be38839e4a97d39"
+  integrity sha512-LlJvI5DtXx+rb+r5XODRRP9UG79EWui+2fRRe4EgN1KuGSZ2kLaTgaEfwGxgBxwbFGxtTprPdDjkpWgdLBfDZw==
   dependencies:
     axios "^1.6.5"
 

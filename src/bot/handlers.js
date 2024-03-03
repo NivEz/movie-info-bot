@@ -13,9 +13,10 @@ const onStart = async (bot, messageBody) => {
 };
 
 const onSearch = async (bot, messageBody) => {
+	const unCachedAction = () => bot.sendChatAction(messageBody.chat.id, 'typing');
 	const searchTerm = messageBody.text;
 	console.log(`Searching for: ${searchTerm}. Sender: [ ${messageBody.from.first_name} ].`);
-	const searchResults = await getSearchResults(searchTerm);
+	const searchResults = await getSearchResults(searchTerm, unCachedAction);
 	const chatId = messageBody.chat.id;
 	if (!searchResults.length) {
 		console.log(`No results found for: ${searchTerm}`);
@@ -25,7 +26,7 @@ const onSearch = async (bot, messageBody) => {
 	if (searchResults.length === 1) {
 		// handle single result
 		console.log(`Found a single result for: ${searchTerm}`);
-		const titleTxt = await getTitle(searchResults[0].id);
+		const titleTxt = await getTitle(searchResults[0].id, unCachedAction);
 		if (titleTxt) {
 			await bot.sendTextMessage(titleTxt, chatId);
 		} else {
@@ -41,13 +42,14 @@ const onSearch = async (bot, messageBody) => {
 };
 
 const onClickSearchResultsMenu = async (bot, callbackQuery) => {
+	const unCachedAction = () => bot.sendChatAction(callbackQuery.message.chat.id, 'typing');
 	const data = callbackQuery.data;
 	if (data.startsWith('tt')) {
 		// In that case data is the title ID
 		console.log(
 			`Clicked on a search result. Title ID: ${data}. Sender: [ ${callbackQuery.from.first_name} ].`,
 		);
-		const titleTxt = await getTitle(data);
+		const titleTxt = await getTitle(data, unCachedAction);
 		if (!titleTxt) {
 			console.log(`No information found for: ${data}`);
 			await bot.sendTextMessage(
@@ -67,7 +69,7 @@ const onClickSearchResultsMenu = async (bot, callbackQuery) => {
 		const splittedData = data.split('__');
 		const searchTerm = splittedData[0].split('=')[1];
 		let startIdx = Number(splittedData[1].split('=')[1]);
-		const searchResults = await getSearchResults(searchTerm);
+		const searchResults = await getSearchResults(searchTerm, unCachedAction);
 		const inlineKeyboard = buildPaginatedInlineKeyboard(searchResults, searchTerm, startIdx);
 		await bot.editInlineKeyboard(
 			callbackQuery.message.chat.id,
